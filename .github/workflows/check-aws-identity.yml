@@ -1,0 +1,17 @@
+name: Check AWS Identity
+
+on: [workflow_dispatch]  # Permite ejecutarlo manualmente desde GitHub
+
+jobs:
+  check-aws-identity:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::122610492430:role/github-actions-role  # Verifica si estás usando un rol
+          role-session-name: GitHubActions
+
+      - name: Check AWS Identity
+        run: aws sts get-caller-identity
