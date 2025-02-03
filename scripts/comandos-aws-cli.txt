@@ -1,0 +1,16 @@
+## IAM
+
+# Obtener información básica del rol
+aws iam get-role --role-name GitOpsIAMRole-GitHubActionsRole4F1BBA26-YAgBUxbxzeWw
+
+# Listar políticas administradas adjuntas
+aws iam list-attached-role-policies --role-name GitOpsIAMRole-GitHubActionsRole4F1BBA26-YAgBUxbxzeWw
+
+# Listar políticas en línea
+aws iam list-role-policies --role-name GitOpsIAMRole-GitHubActionsRole4F1BBA26-YAgBUxbxzeWw
+
+# Obtener el contenido de una política en línea (si existe)
+aws iam get-role-policy --role-name GitOpsIAMRole-GitHubActionsRole4F1BBA26-YAgBUxbxzeWw --policy-name MyInlinePolicy
+
+## Notas:
+#  Asegúrate de tener permisos suficientes para ejecutar estos comandos (por ejemplo, iam:GetRole, iam:ListAttachedRolePolicies, etc.).

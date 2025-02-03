@@ -34,7 +34,8 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          # role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          role-to-assume: arn:aws:iam::122610492430:role/GitOpsIAMRole-GitHubActionsRole4F1BBA26-YAgBUxbxzeWw
           aws-region: us-east-1
 
       - name: Synthesize CDK template
