@@ -24,13 +24,16 @@ class GitOpsIAMRole(Stack):
         # Asignar permisos necesarios para GitHub Actions
         github_actions_role.add_to_policy(iam.PolicyStatement(
             actions=[
-                "cloudformation:*",
-                "s3:*",
-                "lambda:*",
-                "iam:PassRole",
-                "apigateway:*",
-                "dynamodb:*"
-            ],
+                "cloudformation:DescribeStacks",
+                "cloudformation:CreateStack",
+                "cloudformation:UpdateStack",
+                "cloudformation:DeleteStack",
+                "cloudformation:DescribeStackEvents",
+                "cloudformation:ListStackResources",
+                "ec2:DescribeInstances",
+                "ec2:DescribeSecurityGroups",
+                "iam:ListRoles",
+                "iam:GetRole"            ],
             resources=["*"]
         ))
 
