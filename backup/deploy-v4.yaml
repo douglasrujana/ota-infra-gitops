@@ -1,7 +1,10 @@
-name: Deploy CDK with GitOps
+name: Deploy Infra with GitOps
 
 on:
   push:
+    branches:
+      - main
+  pull_request:
     branches:
       - main
 
@@ -13,24 +16,52 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Configure AWS credentials
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install -r requirements.txt  # requirements.txt debe incluir aws-cdk-lib
+
+      - name: Install AWS CDK globally
+        run: |
+          npm install -g aws-cdk
+
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: arn:aws:iam::122610492430:role/GitOpsIAMRole-GitHubActionsRole4F1BBA26-YAgBUxbxzeWw
           aws-region: us-east-1
 
-      - name: Install AWS CDK
-        run: npm install -g aws-cdk
-
-      - name: Bootstrap AWS CDK with GitOps
+      - name: Bootstrap AWS CDK (si es necesario)
         run: |
-          cdk bootstrap \
-            --cloudformation-execution-policies arn:aws:iam::aws:policy/AdministratorAccess \
-            --trust 122610492430 \
-            aws://122610492430/us-east-1
+          source .venv/bin/activate
+          cdk bootstrap aws://122610492430/us-east-1 || echo "Bootstrap already done"
 
-      - name: Deploy CDK Stack
-        run: cdk deploy --require-approval never
+      - name: Synthesize CDK template
+        run: |
+          source .venv/bin/activate
+          cdk synth
+
+      - name: Deploy infrastructure
+        run: |
+          source .venv/bin/activate
+          cdk deploy --require-approval never
+
+      - name: Rollback on failure
+        if: failure()
+        run: |
+          source .venv/bin/activate
+          cdk destroy --all --force
+
+      - name: Log errors if deploy fails
+        if: failure()
+        run: |
+          echo "Deployment failed. Check the logs above for more details."
