@@ -18,7 +18,7 @@ class GitOpsIAMRole(Stack):
                     }
                 }
             ),
-            description="Role for GitHub Actions to deploy with CDK"
+            description="Role for GitHub Actions to deploy with CDK..."
         )
 
         # Asignar permisos necesarios para GitHub Actions

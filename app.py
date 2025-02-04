@@ -5,6 +5,7 @@ class GitOpsIAMRole(Stack):
     def __init__(self, scope: App, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
+        # Crear el rol para GitHub Actions
         github_actions_role = iam.Role(
             self, "GitHubActionsRole",
             assumed_by=iam.FederatedPrincipal(
@@ -19,6 +20,19 @@ class GitOpsIAMRole(Stack):
             ),
             description="Role for GitHub Actions to deploy with CDK"
         )
+
+        # Añadir permisos necesarios para desplegar
+        github_actions_role.add_to_policy(iam.PolicyStatement(
+            actions=[
+                "cloudformation:*",
+                "s3:*",
+                "sts:AssumeRole",
+                "ec2:Describe*",
+                "iam:GetRole",
+                "iam:ListRoles"
+            ],
+            resources=["*"]
+        ))
 
 app = App()
 GitOpsIAMRole(app, "GitOpsIAMRole")

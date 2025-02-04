@@ -14,3 +14,10 @@ aws iam get-role-policy --role-name GitOpsIAMRole-GitHubActionsRole4F1BBA26-YAgB
 
 ## Notas:
 #  Asegúrate de tener permisos suficientes para ejecutar estos comandos (por ejemplo, iam:GetRole, iam:ListAttachedRolePolicies, etc.).
+Permisos insuficientes: AWS CDK usa roles específicos para: 
+desplegar (deploy-role), 
+publicar (file-publishing-role, image-publishing-role) 
+y hacer lookup (lookup-role). 
+El error indica que no tienes acceso al bucket de assets en us-east-1
+# verificar que aws-admin pueda asumir el camera_rol
+aws iam get-role --role-name cdk-hnb659fds-deploy-role-122610492430-us-east-1
