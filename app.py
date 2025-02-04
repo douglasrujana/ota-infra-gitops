@@ -55,6 +55,56 @@ class GitOpsIAMRole(Stack):
             resources=["*"]
         ))
 
+        # Permisos adicionales para CloudFormation
+        github_actions_role.add_to_policy(iam.PolicyStatement(
+            actions=[
+                "cloudformation:GetTemplate",
+                "cloudformation:DescribeStacks",
+                "cloudformation:CreateStack",
+                "cloudformation:UpdateStack",
+                "cloudformation:DeleteStack",
+                "cloudformation:ListStacks",
+                "cloudformation:ValidateTemplate"
+            ],
+            resources=["*"]
+        ))
+
+        # Permisos adicionales para IAM
+        github_actions_role.add_to_policy(iam.PolicyStatement(
+            actions=[
+                "iam:CreateRole",
+                "iam:DeleteRole",
+                "iam:AttachRolePolicy",
+                "iam:DetachRolePolicy",
+                "iam:PutRolePolicy",
+                "iam:DeleteRolePolicy",
+                "iam:GetRole",
+                "iam:ListRoles",
+                "iam:PassRole"
+            ],
+            resources=["*"]
+        ))
+
+        # Permisos adicionales para STS
+        github_actions_role.add_to_policy(iam.PolicyStatement(
+            actions=[
+                "sts:AssumeRole",
+                "sts:GetCallerIdentity"
+            ],
+            resources=["*"]
+        ))
+
+        # Permisos adicionales para EC2 (opcional)
+        github_actions_role.add_to_policy(iam.PolicyStatement(
+            actions=[
+                "ec2:Describe*",
+                "ec2:CreateSecurityGroup",
+                "ec2:AuthorizeSecurityGroupIngress",
+                "ec2:RevokeSecurityGroupIngress"
+            ],
+            resources=["*"]
+        ))
+
 app = App()
 GitOpsIAMRole(app, "GitOpsIAMRole")
 app.synth()
