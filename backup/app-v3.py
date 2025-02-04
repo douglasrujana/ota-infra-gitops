@@ -9,16 +9,15 @@ class GitOpsIAMRole(Stack):
     def __init__(self, scope: App, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
-        # ARN del bucket de assets de CDK (debe existir previamente)
+        # Referenciar el bucket de assets existente en CDK Bootstrap
         existing_bucket_arn = "arn:aws:s3:::cdk-hnb659fds-assets-122610492430-us-east-1"
         asset_bucket = s3.Bucket.from_bucket_arn(self, "CDKAssetBucket", existing_bucket_arn)
 
-        # Crear el rol para GitHub Actions
+        # Rol para GitHub Actions
         github_actions_role = iam.Role(
             self, "GitHubActionsRole",
             assumed_by=iam.FederatedPrincipal(
-                federated="arn:aws:iam::122610492430:oidc-provider/token.actions.githubusercontent.com",
-                assume_role_action="sts:AssumeRoleWithWebIdentity",
+                "arn:aws:iam::122610492430:oidc-provider/token.actions.githubusercontent.com",
                 conditions={
                     "StringEquals": {
                         "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
@@ -29,20 +28,14 @@ class GitOpsIAMRole(Stack):
             description="Role for GitHub Actions to deploy with CDK"
         )
 
-        # Permitir acceso al bucket de assets de CDK
+        # Política para acceder al bucket de assets
         asset_bucket.add_to_resource_policy(iam.PolicyStatement(
             actions=["s3:PutObject", "s3:GetObject", "s3:ListBucket"],
             resources=[asset_bucket.bucket_arn, f"{asset_bucket.bucket_arn}/*"],
             principals=[github_actions_role]
         ))
 
-        # Permisos para `iam:PassRole` sobre el `cfn-exec-role`
-        github_actions_role.add_to_policy(iam.PolicyStatement(
-            actions=["iam:PassRole"],
-            resources=["arn:aws:iam::122610492430:role/cdk-hnb659fds-cfn-exec-role-*"]
-        ))
-
-        # Permisos adicionales requeridos para despliegue con CDK
+        # Permisos necesarios para despliegue con CDK
         github_actions_role.add_to_policy(iam.PolicyStatement(
             actions=[
                 "cloudformation:*",
@@ -50,9 +43,18 @@ class GitOpsIAMRole(Stack):
                 "sts:AssumeRole",
                 "ec2:Describe*",
                 "iam:GetRole",
-                "iam:ListRoles"
+                "iam:ListRoles",
+                "iam:PassRole"  # Permite delegar roles necesarios para CDK
             ],
-            resources=["*"]
+            resources=[
+                "*"
+            ]
+        ))
+
+        # Permitir `iam:PassRole` específicamente para el rol de ejecución de CloudFormation
+        github_actions_role.add_to_policy(iam.PolicyStatement(
+            actions=["iam:PassRole"],
+            resources=["arn:aws:iam::122610492430:role/cdk-hnb659fds-cfn-exec-role-*-us-east-1"]
         ))
 
 app = App()
