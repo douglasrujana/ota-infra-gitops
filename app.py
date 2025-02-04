@@ -47,8 +47,22 @@ class GitOpsIAMRole(Stack):
                 "iam:GetRole",
                 "iam:ListRoles"
             ],
-            resources=[asset_bucket.bucket_arn, f"{asset_bucket.bucket_arn}/*", "*"]  # Aquí se añade * para permitir otras acciones necesarias
+            resources=[asset_bucket.bucket_arn, f"{asset_bucket.bucket_arn}/*", "*"]
         ))
+
+        # Añadir política de confianza al rol para permitir que GitHub Actions lo asuma
+        github_actions_role.assume_role_policy.add_statements(
+            iam.PolicyStatement(
+                effect=iam.Effect.ALLOW,
+                actions=["sts:AssumeRoleWithWebIdentity"],
+                principals=[iam.FederatedPrincipal("arn:aws:iam::122610492430:oidc-provider/token.actions.githubusercontent.com", conditions={
+                    "StringEquals": {
+                        "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+                        "token.actions.githubusercontent.com:sub": "repo:douglasrujana/ota-infra-gitops:ref:refs/heads/main"
+                    }
+                })]
+            )
+        )
 
 app = App()
 GitOpsIAMRole(app, "GitOpsIAMRole")

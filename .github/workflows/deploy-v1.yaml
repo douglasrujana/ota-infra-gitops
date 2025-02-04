@@ -22,21 +22,19 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: "3.9"
 
-      - name: Install dependencies
+      - name: Install AWS CDK and dependencies
         run: |
           python -m venv .venv
           source .venv/bin/activate
-          pip install -r requirements.txt  # Asegúrate de que requirements.txt incluye aws-cdk-lib
-
-      - name: Install AWS CDK globally (for npm)
-        run: |
+          pip install -r requirements.txt
           npm install -g aws-cdk
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
+          # role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           role-to-assume: arn:aws:iam::122610492430:role/GitOpsIAMRole-GitHubActionsRole4F1BBA26-YAgBUxbxzeWw
           aws-region: us-east-1
 
@@ -49,14 +47,3 @@ jobs:
         run: |
           source .venv/bin/activate
           cdk deploy --require-approval never
-
-      - name: Rollback on failure
-        if: failure()
-        run: |
-          source .venv/bin/activate
-          cdk destroy --all --force
-
-      - name: Log errors if deploy fails
-        if: failure()
-        run: |
-          echo "Deployment failed. Check the logs above for more details."
