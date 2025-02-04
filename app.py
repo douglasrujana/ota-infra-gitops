@@ -30,7 +30,7 @@ class GitOpsIAMRole(Stack):
         asset_bucket = s3.Bucket(
             self, "CDKAssetBucket",
             bucket_name="cdk-hnb659fds-assets-122610492430-us-east-1",
-            removal_policy=RemovalPolicy.RETAIN,  # Corregido aquí
+            removal_policy=RemovalPolicy.RETAIN,
             block_public_access=s3.BlockPublicAccess.BLOCK_ALL,
             encryption=s3.BucketEncryption.S3_MANAGED,
             enforce_ssl=True
@@ -46,14 +46,15 @@ class GitOpsIAMRole(Stack):
         # Añadir permisos necesarios al rol
         github_actions_role.add_to_policy(iam.PolicyStatement(
             actions=[
-                "cloudformation:*",
                 "s3:*",
-                "sts:AssumeRole",
-                "ec2:Describe*",
-                "iam:GetRole",
-                "iam:ListRoles"
+                "sts:AssumeRole"
             ],
-            resources=["*"]  # Note: Using '*' for broad permissions, adjust as necessary for security.
+            resources=[
+                "arn:aws:s3:::cdk-hnb659fds-assets-122610492430-us-east-1",
+                "arn:aws:s3:::cdk-hnb659fds-assets-122610492430-us-east-1/*",
+                "arn:aws:iam::122610492430:role/cdk-hnb659fds-deploy-role-122610492430-us-east-1",
+                "arn:aws:iam::122610492430:role/cdk-hnb659fds-file-publishing-role-122610492430-us-east-1"
+            ]
         ))
 
 app = App()
