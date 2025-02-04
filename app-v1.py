@@ -1,9 +1,7 @@
-from aws_cdk import (
-    App,
-    Stack,
-    aws_iam as iam,
-    aws_s3 as s3
-)
+from aws_cdk import App, Stack
+from aws_cdk import aws_iam as iam
+from aws_cdk import aws_s3 as s3
+from aws_cdk import aws_s3_deployment as s3_deployment
 
 class GitOpsIAMRole(Stack):
     def __init__(self, scope: App, id: str, **kwargs) -> None:
@@ -13,14 +11,14 @@ class GitOpsIAMRole(Stack):
         github_actions_role = iam.Role(
             self, "GitHubActionsRole",
             assumed_by=iam.FederatedPrincipal(
-                federated="token.actions.githubusercontent.com",
-                assume_role_action="sts:AssumeRoleWithWebIdentity",
+                federated="arn:aws:iam::aws:oidc-provider/token.actions.githubusercontent.com",
                 conditions={
                     "StringEquals": {
                         "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
                         "token.actions.githubusercontent.com:sub": "repo:douglasrujana/ota-infra-gitops:ref:refs/heads/main"
                     }
-                }
+                },
+                assume_role_action="sts:AssumeRoleWithWebIdentity"
             ),
             description="Role for GitHub Actions to deploy with CDK"
         )
@@ -31,14 +29,16 @@ class GitOpsIAMRole(Stack):
             bucket_name="cdk-hnb659fds-assets-122610492430-us-east-1",
             removal_policy=s3.RemovalPolicy.RETAIN,
             block_public_access=s3.BlockPublicAccess.BLOCK_ALL,
-            encryption=s3.BucketEncryption.S3_MANAGED,
             enforce_ssl=True
         )
 
         # Definir la política del bucket para permitir acceso a GitHub Actions
         asset_bucket.add_to_resource_policy(iam.PolicyStatement(
             actions=["s3:PutObject", "s3:GetObject", "s3:ListBucket"],
-            resources=[asset_bucket.bucket_arn, f"{asset_bucket.bucket_arn}/*"],
+            resources=[
+                asset_bucket.bucket_arn,
+                f"{asset_bucket.bucket_arn}/*"
+            ],
             principals=[github_actions_role]
         ))
 
@@ -47,12 +47,16 @@ class GitOpsIAMRole(Stack):
             actions=[
                 "cloudformation:*",
                 "s3:*",
+                "s3:GetObject",
+                "s3:PutObject",
+                "s3:ListBucket",
+                "s3:DeleteObject",
                 "sts:AssumeRole",
                 "ec2:Describe*",
                 "iam:GetRole",
                 "iam:ListRoles"
             ],
-            resources=["*"]  # Note: Using '*' for broad permissions, adjust as necessary for security.
+            resources=[asset_bucket.bucket_arn, f"{asset_bucket.bucket_arn}/*"]
         ))
 
 app = App()
