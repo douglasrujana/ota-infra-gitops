@@ -10,6 +10,10 @@ class GitOpsIAMRole(Stack):
     def __init__(self, scope: App, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
+        # Referenciar el bucket existente en lugar de crearlo
+        existing_bucket_arn = "arn:aws:s3:::cdk-hnb659fds-assets-122610492430-us-east-1"
+        asset_bucket = s3.Bucket.from_bucket_arn(self, "CDKAssetBucket", existing_bucket_arn)
+
         # Crear el rol para GitHub Actions
         github_actions_role = iam.Role(
             self, "GitHubActionsRole",
@@ -26,16 +30,6 @@ class GitOpsIAMRole(Stack):
             description="Role for GitHub Actions to deploy with CDK"
         )
 
-        # Crear el bucket S3 para los assets del CDK
-        asset_bucket = s3.Bucket(
-            self, "CDKAssetBucket",
-            bucket_name="cdk-hnb659fds-assets-122610492430-us-east-1",
-            removal_policy=RemovalPolicy.RETAIN,
-            block_public_access=s3.BlockPublicAccess.BLOCK_ALL,
-            encryption=s3.BucketEncryption.S3_MANAGED,
-            enforce_ssl=True
-        )
-
         # Definir la política del bucket para permitir acceso a GitHub Actions
         asset_bucket.add_to_resource_policy(iam.PolicyStatement(
             actions=["s3:PutObject", "s3:GetObject", "s3:ListBucket"],
@@ -46,15 +40,14 @@ class GitOpsIAMRole(Stack):
         # Añadir permisos necesarios al rol
         github_actions_role.add_to_policy(iam.PolicyStatement(
             actions=[
+                "cloudformation:*",
                 "s3:*",
-                "sts:AssumeRole"
+                "sts:AssumeRole",
+                "ec2:Describe*",
+                "iam:GetRole",
+                "iam:ListRoles"
             ],
-            resources=[
-                "arn:aws:s3:::cdk-hnb659fds-assets-122610492430-us-east-1",
-                "arn:aws:s3:::cdk-hnb659fds-assets-122610492430-us-east-1/*",
-                "arn:aws:iam::122610492430:role/cdk-hnb659fds-deploy-role-122610492430-us-east-1",
-                "arn:aws:iam::122610492430:role/cdk-hnb659fds-file-publishing-role-122610492430-us-east-1"
-            ]
+            resources=[asset_bucket.bucket_arn, f"{asset_bucket.bucket_arn}/*", "*"]  # Aquí se añade * para permitir otras acciones necesarias
         ))
 
 app = App()
