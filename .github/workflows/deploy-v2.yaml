@@ -22,15 +22,15 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: "3.9"
 
       - name: Install dependencies
         run: |
           python -m venv .venv
           source .venv/bin/activate
-          pip install -r requirements.txt  # requirements.txt debe incluir aws-cdk-lib
+          pip install -r requirements.txt  # Asegúrate de que requirements.txt incluye aws-cdk-lib
 
-      - name: Install AWS CDK globally
+      - name: Install AWS CDK globally (for npm)
         run: |
           npm install -g aws-cdk
 
@@ -39,11 +39,6 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::122610492430:role/GitOpsIAMRole-GitHubActionsRole4F1BBA26-YAgBUxbxzeWw
           aws-region: us-east-1
-
-      - name: Bootstrap AWS CDK (si es necesario)
-        run: |
-          source .venv/bin/activate
-          cdk bootstrap aws://122610492430/us-east-1 || echo "Bootstrap already done"
 
       - name: Synthesize CDK template
         run: |
