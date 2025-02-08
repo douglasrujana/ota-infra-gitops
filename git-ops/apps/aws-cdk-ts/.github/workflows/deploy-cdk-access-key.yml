@@ -2,7 +2,7 @@ name: Deploy CDK App
 on:
   push:
     paths:
-      - "aws-cdk-ts/**" # solo se activa ai canbio esta carpeta 
+      - git-ops/apps/aws-cdk-ts/.github/workflows/deploy-cdk-access-key.yml # solo se activa ai canbio esta carpeta 
     branches:
       - main
 jobs:
