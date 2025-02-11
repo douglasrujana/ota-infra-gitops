@@ -1,0 +1,10 @@
+cdk-hnb659fds-cfn-exec-role-122610492430-us-east-1	
+cdk-hnb659fds-cfn-exec-role-122610492430-us-east-2	
+cdk-hnb659fds-deploy-role-122610492430-us-east-1	
+cdk-hnb659fds-deploy-role-122610492430-us-east-2	
+cdk-hnb659fds-file-publishing-role-122610492430-us-east-1	
+cdk-hnb659fds-file-publishing-role-122610492430-us-east-2	
+cdk-hnb659fds-image-publishing-role-122610492430-us-east-1	
+cdk-hnb659fds-image-publishing-role-122610492430-us-east-2	
+cdk-hnb659fds-lookup-role-122610492430-us-east-1	
+cdk-hnb659fds-lookup-role-122610492430-us-east-2

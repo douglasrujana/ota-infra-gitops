@@ -1,0 +1,42 @@
+{
+    "Role": {
+        "Path": "/",
+        "RoleName": "cdk-hnb659fds-deploy-role-122610492430-us-east-1",
+        "RoleId": "AROARZDBHUQHAOQN6T2CX",
+        "Arn": "arn:aws:iam::122610492430:role/cdk-hnb659fds-deploy-role-122610492430-us-east-1",
+        "CreateDate": "2025-02-03T15:17:23+00:00",
+        "AssumeRolePolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Principal": {
+                        "AWS": "arn:aws:iam::122610492430:user/aws-admin"
+                    },
+                    "Action": "sts:AssumeRole"
+                },
+                {
+                    "Effect": "Allow",
+                    "Principal": {
+                        "Federated": "arn:aws:iam::122610492430:oidc-provider/token.actions.githubusercontent.com"
+                    },
+                    "Action": "sts:AssumeRole",
+                    "Condition": {
+                        "StringEquals": {
+                            "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                        }
+                    }
+                }
+            ]
+        },
+        "Description": "",
+        "MaxSessionDuration": 3600,
+        "Tags": [
+            {
+                "Key": "aws-cdk:bootstrap-role",
+                "Value": "deploy"
+            }
+        ],
+        "RoleLastUsed": {}
+    }
+}

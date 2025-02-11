@@ -1,0 +1,33 @@
+{
+    "Role": {
+        "Path": "/",
+        "RoleName": "GitOpsIAMRole-GitHubActionsRole4F1BBA26-YAgBUxbxzeWw",
+        "RoleId": "AROARZDBHUQHAYSY2KZKP",
+        "Arn": "arn:aws:iam::122610492430:role/GitOpsIAMRole-GitHubActionsRole4F1BBA26-YAgBUxbxzeWw",
+        "CreateDate": "2025-02-03T01:46:35+00:00",
+        "AssumeRolePolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Principal": {
+                        "Federated": "arn:aws:iam::122610492430:oidc-provider/token.actions.githubusercontent.com"
+                    },
+                    "Action": "sts:AssumeRoleWithWebIdentity",
+                    "Condition": {
+                        "StringEquals": {
+                            "token.actions.githubusercontent.com:sub": "repo:douglasrujana/ota-infra-gitops:ref:refs/heads/main",
+                            "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                        }
+                    }
+                }
+            ]
+        },
+        "Description": "Role for GitHub Actions to deploy with CDK",
+        "MaxSessionDuration": 3600,
+        "RoleLastUsed": {
+            "LastUsedDate": "2025-02-03T16:20:45+00:00",
+            "Region": "us-east-1"
+        }
+    }
+}
