@@ -1,29 +1,38 @@
 name: Deploy CDK App
+
 on:
   push:
     branches:
-    - main
+      - main
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Debug paths
-        run: |
-          echo "Changed files:"
-          git diff --name-only HEAD^ HEAD
-
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 2  # Solo traemos 2 commits para poder hacer diff sin problemas
+
+      - name: Debug changed files
+        run: |
+          echo "Changed files:"
+          if [ $(git rev-list --count HEAD) -gt 1 ]; then
+            git diff --name-only HEAD^ HEAD
+          else
+            echo "No previous commit available. Skipping diff."
+          fi
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: git-ops/apps/aws-cdk-ts/package-lock.json
 
       - name: Install dependencies
-        run: |
-          cd git-ops/apps/aws-cdk-ts
-          npm install
+        working-directory: git-ops/apps/aws-cdk-ts
+        run: npm ci
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -33,11 +42,9 @@ jobs:
           aws-region: us-east-1
 
       - name: Synthesize CDK template
-        run: |
-          cd git-ops/apps/aws-cdk-ts
-          npx cdk synth
+        working-directory: git-ops/apps/aws-cdk-ts
+        run: npx cdk synth
 
       - name: Deploy CDK stack
-        run: |
-          cd git-ops/apps/aws-cdk-ts
-          npx cdk deploy --require-approval never
+        working-directory: git-ops/apps/aws-cdk-ts
+        run: npx cdk deploy --require-approval never
